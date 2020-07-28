@@ -1,0 +1,90 @@
+<div id="players"></div>
+<script>
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    
+    let players = [], playerPrefix = 'player'
+    let dialogue = [
+        {
+             title: "poda patti old man",
+             videoId: 'BGZ4fniGAwQ',
+             startSeconds: 225,
+             endSeconds: 226.3
+         },
+         {
+             title: "poda patti girl",
+             videoId: 'vxUWvsUacg8',
+             startSeconds: 340.9,
+             endSeconds: 342.1,
+             playbackRate: .75
+         }
+    ]
+     
+    function onYouTubeIframeAPIReady() {
+        for (let i = 0; i < dialogue.length; i++) {
+            let line = dialogue[i]
+            let playerDiv = document.createElement('div')
+            playerDiv.id = `${playerPrefix}${i}`
+            playerDiv.style.display = 'none'
+            document.getElementById('players').appendChild(playerDiv)
+            players.push(new YT.Player(playerDiv.id, {
+                height: '350',
+                width: '425',
+                playerVars: {
+                    controls: 0,
+                    rel: 0,
+                    showinfo: 0,
+                    iv_load_policy: 0,
+                    disablekb: 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            }))
+        }
+    }
+    let count = 0
+    function onPlayerReady(event) {
+        count++
+        if (count == players.length) {
+            for (let i = 0; i < players.length; i++) {
+                let line = dialogue[i]
+                let videoConfig = {videoId: line.videoId}
+                if (line.startSeconds)
+                    videoConfig.startSeconds = line.startSeconds
+                if (line.endSeconds)
+                    videoConfig.endSeconds = line.endSeconds
+                if (line.playbackRate)
+                    players[i].setPlaybackRate(line.playbackRate)
+                players[i].loadVideoById(videoConfig)
+                setTimeout(() => players[i].pauseVideo(), 1000)
+                if (i === players.length - 1)
+                    setTimeout(() => {
+                        document.getElementById(`${playerPrefix}0`).style.display = 'block'
+                        players[0].playVideo()
+                    }, 0)
+            }
+            
+            
+        }
+    }
+    
+    function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.ENDED) {
+            let nextVidIdx = getPlayerIdx(event.target) + 1
+            if (nextVidIdx < players.length) {
+                document.getElementById(`${playerPrefix}${nextVidIdx - 1}`).style.display = 'none'
+                document.getElementById(`${playerPrefix}${nextVidIdx}`).style.display = 'block'
+                players[nextVidIdx].playVideo()
+            }
+                
+        }
+    }
+    
+    function getPlayerIdx(player) {
+        return parseInt(player.a.id.substring(playerPrefix.length)) 
+    }
+</script>

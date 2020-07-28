@@ -41,7 +41,7 @@
                 },
                 events: {
                     'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
+                    'onStateChange': e => onPlayerStateChange(e, i)
                 }
             }))
         }
@@ -72,9 +72,9 @@
         }
     }
     
-    function onPlayerStateChange(event) {
+    function onPlayerStateChange(event, playerIdx) {
         if (event.data == YT.PlayerState.ENDED) {
-            let nextVidIdx = getPlayerIdx(event.target) + 1
+            let nextVidIdx = playerIdx + 1
             if (nextVidIdx < players.length) {
                 document.getElementById(`${playerPrefix}${nextVidIdx - 1}`).style.display = 'none'
                 document.getElementById(`${playerPrefix}${nextVidIdx}`).style.display = 'block'
@@ -82,9 +82,5 @@
             }
                 
         }
-    }
-    
-    function getPlayerIdx(player) {
-        return parseInt(player.a.id.substring(playerPrefix.length)) 
     }
 </script>
